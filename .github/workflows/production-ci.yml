@@ -1,0 +1,62 @@
+name: Production Quality Check
+
+# Trigger this workflow on any push or pull request to the main branch
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  # ------------------------------------------------------------------
+  # JOB 1: BACKEND HEALTH CHECK (Java/Spring Boot)
+  # ------------------------------------------------------------------
+  backend-check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./url-shortner-sb
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: "21"
+          distribution: "temurin"
+          cache: maven
+
+      - name: Run Unit Tests
+        run: mvn test
+        # If this fails, the whole pipeline turns RED ❌
+
+  # ------------------------------------------------------------------
+  # JOB 2: FRONTEND HEALTH CHECK (React/Vite)
+  # ------------------------------------------------------------------
+  frontend-check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./url-shortener-react
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: url-shortener-react/package-lock.json
+
+      - name: Install Dependencies
+        run: npm ci
+        # 'npm ci' is faster and safer than 'npm install' for CI servers
+
+      - name: Check for Syntax/Build Errors
+        run: npm run build
+        # Since you might not have written specific tests yet, running 'build'
+        # is the best way to prove the code isn't broken.
