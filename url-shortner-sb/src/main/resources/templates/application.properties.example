@@ -1,0 +1,4 @@
+spring.datasource.url=your database url
+spring.datasource.username=YOUR_DB_USERNAME
+spring.datasource.password=YOUR_DB_PASSWORD
+app.jwtSecret=YOUR_JWT_SECRET_KEY
