@@ -1,19 +1,18 @@
 # --- Stage 1: Build the Application ---
-FROM eclipse-temurin:25-jdk-ubuntu AS build
+# Use the official Maven image with Java 21 (Stable & includes Maven)
+FROM maven:3.9.9-eclipse-temurin-21 AS build
 WORKDIR /app
-
-# Install Maven manually (Fixes the missing mvnw issue)
-RUN apt-get update && apt-get install -y maven
 
 # Copy project files
 COPY pom.xml .
 COPY src ./src
 
-# Build the app using the system Maven
+# Build the app (Use 'mvn', not './mvnw')
 RUN mvn clean package -DskipTests
 
 # --- Stage 2: Run the Application ---
-FROM eclipse-temurin:25-jre-ubuntu
+# Use the official Java 21 Runtime (Lightweight)
+FROM eclipse-temurin:21-jre
 WORKDIR /app
 
 # Copy the JAR
